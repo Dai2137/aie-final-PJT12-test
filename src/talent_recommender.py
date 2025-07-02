@@ -5,9 +5,12 @@ from typing import Dict, List, Optional
 from loguru import logger
 from dotenv import load_dotenv
 
-from .gemini_client import GeminiClient
-from .data_collector import DataCollector
-from .matching_engine import MatchingEngine, MatchResult
+from bedrock_client import BedrockClient  # <- 新しく追加
+
+# from .gemini_client import GeminiClient
+
+from data_collector import DataCollector
+from matching_engine import MatchingEngine, MatchResult
 
 load_dotenv()
 
@@ -24,7 +27,8 @@ class TalentRecommender:
         """
         logger.info("TalentRecommenderシステムを初期化中...")
         
-        self.gemini_client = GeminiClient(gemini_api_key)
+        # self.gemini_client = GeminiClient(gemini_api_key)
+        self.gemini_client = BedrockClient()
         self.data_collector = DataCollector()
         self.matching_engine = MatchingEngine()
         
