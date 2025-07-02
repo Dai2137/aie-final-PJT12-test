@@ -36,7 +36,10 @@ class BedrockClient:
                 "messages": [
                     {
                         "role": "user",
-                        "content": prompt
+                        # contentの値を {"text": prompt} というオブジェクトを含む配列に変更
+                        "content": [
+                            {"text": prompt}
+                        ]
                     }
                 ]
             })
