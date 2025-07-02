@@ -50,10 +50,19 @@ class BedrockClient:
             )
 
             response_body = json.loads(response.get("body").read())
-            # Messages API形式のレスポンスからテキスト部分を取得
-            completion = response_body.get("content")[0].get("text")
+            
+            # 1. Bedrockからの生の応答をログに出力して確認する
+            logger.debug(f"Bedrock Raw Response: {response_body}")
 
-            return self._parse_analysis_response(completion)
+            # 2. 応答に'content'キーが存在するか安全にチェックする
+            content_list = response_body.get("content")
+            if content_list and isinstance(content_list, list) and len(content_list) > 0:
+                completion = content_list[0].get("text", "")
+            else:
+                logger.error(f"Bedrockからの応答に予期した'content'キーが見つかりません。")
+                completion = "" # contentが見つからない場合は空文字にする
+
+                return self._parse_analysis_response(completion)
 
         except Exception as e:
             logger.error(f"Bedrock プロフィール分析エラー: {e}")
