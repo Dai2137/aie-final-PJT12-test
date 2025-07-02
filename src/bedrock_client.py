@@ -3,6 +3,7 @@
 import boto3
 import json
 from loguru import logger
+from typing import Dict, List, Optional # ← この行を追加
 
 class BedrockClient:
     """Amazon Bedrock API クライアント"""
