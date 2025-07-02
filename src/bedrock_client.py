@@ -56,7 +56,7 @@ class BedrockClient:
         except Exception as e:
             logger.error(f"Bedrock プロフィール分析エラー: {e}")
             # エラー時のフォールバック処理
-            return {"match_score": 0, "summary": "分析エラー", ...}
+            return {"match_score": 0, "summary": "分析エラー", "details": str(e)}
 
     # _create_analysis_prompt と _parse_analysis_response は
     # gemini_client.pyから流用・微調整して実装
