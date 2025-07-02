@@ -24,54 +24,32 @@ class BedrockClient:
         logger.info(f"Bedrock APIクライアントを初期化しました (モデル: {self.model_id})")
 
     def analyze_profile(self, profile_text: str, requirements: dict) -> dict:
-        """
-        プロフィールテキストを分析し、要件との適合度を評価
-        (Messages API形式に修正)
-        """
         prompt = self._create_analysis_prompt(profile_text, requirements)
-
         try:
-            # Bedrock (Messages API形式) へのリクエストボディを作成
             body = json.dumps({
-                "messages": [
-                    {
-                        "role": "user",
-                        # contentの値を {"text": prompt} というオブジェクトを含む配列に変更
-                        "content": [
-                            {"text": prompt}
-                        ]
-                    }
-                ]
+                "messages": [{"role": "user", "content": [{"text": prompt}]}]
             })
-
-            response = self.client.invoke_model(
-                body=body,
-                modelId=self.model_id
-            )
-
+            response = self.client.invoke_model(body=body, modelId=self.model_id)
             response_body = json.loads(response.get("body").read())
             
-            # 1. Bedrockからの生の応答をログに出力して確認する
-            logger.debug(f"Bedrock Raw Response: {response_body}")
+            # 正しい階層をたどってcontentを取得
+            output = response_body.get("output", {})
+            message = output.get("message", {})
+            content_list = message.get("content")
 
-            # 2. 応答に'content'キーが存在するか安全にチェックする
-            content_list = response_body.get("content")
             if content_list and isinstance(content_list, list) and len(content_list) > 0:
                 completion = content_list[0].get("text", "")
             else:
-                logger.error(f"Bedrockからの応答に予期した'content'キーが見つかりません。")
-                completion = "" # contentが見つからない場合は空文字にする
-
-                return self._parse_analysis_response(completion)
-
+                logger.error(f"Bedrock応答からcontentを取得できませんでした。応答: {response_body}")
+                completion = ""
+            
+            return self._parse_analysis_response(completion)
         except Exception as e:
             logger.error(f"Bedrock プロフィール分析エラー: {e}")
             return {
-                "match_score": 0,
-                "potential_score": 0,
+                "match_score": 0, "potential_score": 0,
                 "summary": "Bedrockでの分析中にエラーが発生しました",
-                "strengths": [],
-                "concerns": []
+                "strengths": [], "concerns": []
             }
     
     
@@ -163,39 +141,41 @@ class BedrockClient:
         }
 
     def generate_approach_strategy(self, candidate_info: Dict) -> str:
-        """
-        候補者へのアプローチ戦略を生成
-        
-        Args:
-            candidate_info: 候補者情報
-            
-        Returns:
-            アプローチ戦略テキスト
-        """
         try:
+            # プロンプトの作成
             prompt = f"""
-以下の候補者情報を基に、効果的なリクルーティングアプローチ戦略を提案してください。
-
-【候補者情報】
-- 名前: {candidate_info.get('name', '不明')}
-- マッチ度: {candidate_info.get('match_score', 0)}点
-- 有望度: {candidate_info.get('potential_score', 0)}点
-- 要約: {candidate_info.get('summary', '')}
-- 強み: {', '.join(candidate_info.get('strengths', []))}
-- 懸念点: {', '.join(candidate_info.get('concerns', []))}
-
-【提案内容】
-1. アプローチ方法（メール、LinkedIn、紹介など）
-2. 訴求ポイント（候補者の興味を引く要素）
-3. 初回コンタクトのメッセージ例
-4. 注意点
-
-150文字以内で簡潔に回答してください。
-"""
+    以下の候補者情報を基に、効果的なリクルーティングアプローチ戦略を提案してください。
+    【候補者情報】
+    - 名前: {candidate_info.get('name', '不明')}
+    - マッチ度: {candidate_info.get('match_score', 0)}点
+    - 有望度: {candidate_info.get('potential_score', 0)}点
+    - 要約: {candidate_info.get('summary', '')}
+    - 強み: {', '.join(candidate_info.get('strengths', []))}
+    - 懸念点: {', '.join(candidate_info.get('concerns', []))}
+    【提案内容】
+    1. アプローチ方法（メール、LinkedIn、紹介など）
+    2. 訴求ポイント（候補者の興味を引く要素）
+    3. 初回コンタクトのメッセージ例
+    4. 注意点
+    150文字以内で簡潔に回答してください。
+    """
+            # Bedrockへのリクエスト
+            body = json.dumps({
+                "messages": [{"role": "user", "content": [{"text": prompt}]}]
+            })
+            response = self.client.invoke_model(body=body, modelId=self.model_id)
+            response_body = json.loads(response.get("body").read())
             
-            response = self.model.generate_content(prompt)
-            return response.text.strip()
+            # 応答からテキスト部分を抽出
+            output = response_body.get("output", {})
+            message = output.get("message", {})
+            content_list = message.get("content")
+
+            if content_list and isinstance(content_list, list) and len(content_list) > 0:
+                return content_list[0].get("text", "戦略の生成に失敗しました。").strip()
             
+            return "戦略の生成に失敗しました（空の応答）。"
+
         except Exception as e:
             logger.error(f"アプローチ戦略生成エラー: {e}")
             return "個別相談により最適なアプローチ方法を検討することをお勧めします。"
