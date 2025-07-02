@@ -34,9 +34,11 @@ class BedrockClient:
             # Bedrock (Messages API形式) へのリクエストボディを作成
             body = json.dumps({
                 "messages": [{"role": "user", "content": [{"type": "text", "text": prompt}]}],
-                "max_tokens": 2048,
-                "temperature": 0.1
-                # anthropic_version のようなキーはAnthropicモデル用なので不要
+                # パラメータを "inferenceParameters" の中にまとめる
+                "inferenceParameters": {
+                    "maxTokens": 2048,
+                    "temperature": 0.1
+                }
             })
 
             response = self.client.invoke_model(
