@@ -18,8 +18,8 @@ class BedrockClient:
             service_name="bedrock-runtime", 
             region_name=region_name
         )
-        # 画像で推奨されているモデルのID（例）
-        self.model_id = "amazon.titan-text-lite-v1" 
+        # 確認したNova LiteのモデルIDに書き換える
+        self.model_id = "amazon.nova-lite-v1:0"
         logger.info(f"Bedrock APIクライアントを初期化しました (モデル: {self.model_id})")
 
     def analyze_profile(self, profile_text: str, requirements: dict) -> dict:
