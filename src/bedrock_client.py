@@ -33,7 +33,12 @@ class BedrockClient:
         try:
             # Bedrock (Messages API形式) へのリクエストボディを作成
             body = json.dumps({
-                "messages": [{"role": "user", "content": [{"type": "text", "text": prompt}]}],
+                "messages": [
+                    {
+                        "role": "user",
+                        "content": prompt
+                    }
+                ]
             })
 
             response = self.client.invoke_model(
