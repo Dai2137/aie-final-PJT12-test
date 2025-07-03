@@ -10,6 +10,7 @@ import os
 sys.path.append(os.path.join(os.path.dirname(__file__), 'src'))
 
 from talent_recommender import TalentRecommender
+from requirements_fetcher import fetch_job_requirements  # ⇦ 追加
 from loguru import logger
 
 
@@ -23,17 +24,23 @@ def main():
         recommender = TalentRecommender()
         print("✓ システム初期化完了\n")
         
-        # 人材要件設定
-        requirements = {
-            "skills": ["機械学習", "Python", "データ分析"],
-            "experience": "3年以上",
-            "education": "修士以上", 
-            "research_area": ["深層学習", "自然言語処理"]
-        }
+        # --- 人材要件の取得 ---
+        # 決め打ちの要件を削除し、URLから動的に取得する
+        requirements_url = "https://herp.careers/v1/weblab/r-pnKT2vTAb7"
+        print(f"人材要件を以下のURLから取得中...\n{requirements_url}")
+        requirements = fetch_job_requirements(requirements_url) # ⇦ 変更
+        print("✓ 人材要件の取得完了\n")
+        
+        
+        
         
         print("検索要件:")
         for key, value in requirements.items():
-            print(f"  {key}: {value}")
+            # 値がリストの場合はカンマ区切りで表示
+            if isinstance(value, list):
+                print(f"  {key}: {', '.join(value)}")
+            else:
+                print(f"  {key}: {value}")
         print()
         
         # 候補者検索実行
