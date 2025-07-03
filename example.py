@@ -97,8 +97,8 @@ def main():
         print(f"\n=== システム情報 ===")
         print(f"処理時間: 検索完了")
         print(f"候補者総数: {len(results)}名")
-        print(f"使用データソース: ResearchMap風データ, LinkedIn風データ")
-        # print(f"AI分析: Google Gemini Pro")
+        print(f"使用データソース: GitHub")
+        print(f"AI分析: Nova Lite")
         
     except Exception as e:
         logger.error(f"実行エラー: {e}")
