@@ -47,7 +47,7 @@ uv pip install -r requirements.txt
 ### 3. 環境変数の設定
 ```bash
 # .env ファイルを作成し、以下を設定
-# GEMINI_API_KEY=your_gemini_api_key
+GITHUB_PAT="your_github_pat"
 ```
 
 ## 使用方法
