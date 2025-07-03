@@ -93,17 +93,29 @@ class DataCollector:
         
         # GitHubから検索 (本物)
         if "job_keywords" in search_params:
-            keywords = search_params["job_keywords"]
-
-            # 最も重要なキーワードを3〜4つに絞り込む
-            # 'Python'はlanguage指定子で使うため、キーワードリストからは一旦除外
+            keywords = search_params.get("job_keywords", [])
+            # 'python'を除いた重要キーワードをいくつか選ぶ
             core_keywords = [kw for kw in keywords if kw.lower() != 'python'][:4]
 
-            # 言語(language)と、厳選したキーワードで検索クエリを作成
-            query_str = f"language:python {' '.join(core_keywords)} location:japan"
-            
-            github_data = self.search_github_profiles(query_str, max_results=5) # 検索結果を5件に制限
-            all_candidates.extend(github_data)
+            # 重複を防ぐため、候補者を一時的に保存する辞書
+            github_candidates_dict = {}
+
+            # 主要なキーワードそれぞれで検索を実行
+            for keyword in core_documents:
+                query_str = f"language:python {keyword} location:japan"
+                # 1回の検索あたりの取得数を減らし、幅広く探す
+                results = self.search_github_profiles(query_str, max_results=3) 
+                for candidate in results:
+                    # ユーザーURLをキーにして重複を排除
+                    candidate_url = candidate["reference_links"][0]
+                    if candidate_url not in github_candidates_dict:
+                        github_candidates_dict[candidate_url] = candidate
+
+                # APIへの連続アクセスを避けるための短い待機
+                time.sleep(1)
+
+            # 辞書からリストに変換して最終的な候補者リストに追加
+            all_candidates.extend(list(github_candidates_dict.values()))
         
         logger.info(f"候補者データ収集完了: {len(all_candidates)}件")
         return all_candidates
