@@ -3,15 +3,20 @@
 有望人材レコメンドシステム実行例
 """
 
-import sys
+from dotenv import load_dotenv
 import os
+import sys
+from loguru import logger
 
-# srcディレクトリをパスに追加
+# 1. 最初に環境変数を読み込む
+load_dotenv()
+
+# 2. srcディレクトリをパスに追加
 sys.path.append(os.path.join(os.path.dirname(__file__), 'src'))
 
+# 3. 自作モジュールをインポート
 from talent_recommender import TalentRecommender
-from requirements_fetcher import fetch_job_requirements  # ⇦ 追加
-from loguru import logger
+from requirements_fetcher import fetch_text_from_url
 
 
 def main():
@@ -19,34 +24,42 @@ def main():
     print("=== 有望人材レコメンドシステム ===\n")
     
     try:
-        # システム初期化
+        # 4. .envからPATを読み込み、存在を確認
+        github_pat = os.getenv("GITHUB_PAT")
+        if not github_pat:
+            logger.error("GITHUB_PATが.envファイルに設定されていません。")
+            print("❌ エラー: .envファイルにGITHUB_PATを設定してください。")
+            return
+
         print("システムを初期化中...")
-        recommender = TalentRecommender()
+        # 5. PATを引数として渡す
+        recommender = TalentRecommender(github_pat=github_pat)
         print("✓ システム初期化完了\n")
         
-        # --- 人材要件の取得 ---
-        # 決め打ちの要件を削除し、URLから動的に取得する
-        requirements_url = "https://herp.careers/v1/weblab/r-pnKT2vTAb7"
-        print(f"人材要件を以下のURLから取得中...\n{requirements_url}")
-        requirements = fetch_job_requirements(requirements_url) # ⇦ 変更
-        print("✓ 人材要件の取得完了\n")
         
+        # 1. 人材要件をWebページから取得
+        print("人材要件をWebから取得中...")
+        requirement_url = "https://herp.careers/v1/weblab/r-pnKT2vTAb7"
+        raw_text = fetch_text_from_url(requirement_url)
+        if not raw_text:
+            print("❌ 人材要件の取得に失敗しました。")
+            return
         
-        
-        
-        print("検索要件:")
-        for key, value in requirements.items():
-            # 値がリストの場合はカンマ区切りで表示
-            if isinstance(value, list):
-                print(f"  {key}: {', '.join(value)}")
-            else:
-                print(f"  {key}: {value}")
+        # 2. 取得したテキストを分析し、キーワードを抽出
+        requirements = recommender.analyze_requirements_from_text(raw_text)
+        if not requirements:
+            print("❌ 人材要件の分析に失敗しました。")
+            return
+
+        print("▼ 抽出された検索キーワード")
+        print(requirements["skills"])
         print()
-        
-        # 候補者検索実行
+
+        # 3. 抽出されたキーワードで候補者を検索
         print("候補者を検索中...")
-        results = recommender.find_candidates(requirements)
+        results = recommender.find_candidates(requirements) 
         
+               
         if not results:
             print("❌ 条件に合致する候補者が見つかりませんでした。")
             return
@@ -84,8 +97,8 @@ def main():
         print(f"\n=== システム情報 ===")
         print(f"処理時間: 検索完了")
         print(f"候補者総数: {len(results)}名")
-        print(f"使用データソース: ResearchMap風データ, LinkedIn風データ")
-        # print(f"AI分析: Google Gemini Pro")
+        print(f"使用データソース: GitHub")
+        print(f"AI分析: Nova Lite")
         
     except Exception as e:
         logger.error(f"実行エラー: {e}")

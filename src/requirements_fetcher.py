@@ -96,3 +96,25 @@ def get_fallback_requirements() -> Dict[str, Any]:
         "other": ["日本語でのコミュニケーション及び文章作成能力", "英語での文章読解能力"]
     }
     return requirements
+
+
+# Webページからテキストを取得するためのヘルパー関数
+def fetch_text_from_url(url: str) -> str:
+    try:
+        # 一般的なブラウザからのアクセスを装うためのヘッダーを追加
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+        }
+        # ヘッダーを付けてリクエストを送信
+        response = requests.get(url, headers=headers)
+        response.raise_for_status()
+        soup = BeautifulSoup(response.text, 'html.parser')
+        
+        content_divs = soup.find_all('div', class_='multiline-text')
+        full_text = ' '.join(div.get_text(separator=' ', strip=True) for div in content_divs)
+        
+        return full_text
+        
+    except Exception as e:
+        logger.error(f"URLからのテキスト取得エラー: {e}")
+        return ""
