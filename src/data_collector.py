@@ -93,16 +93,15 @@ class DataCollector:
         
         # GitHubから検索 (本物)
         if "job_keywords" in search_params:
-            # GitHubの検索クエリを組み立てる (例: language:python 機械学習)
-            query_parts = []
-            for kw in search_params["job_keywords"]:
-                if kw.lower() == "python" or kw.lower() == "typescript":
-                    query_parts.append(f"language:{kw.lower()}")
-                else:
-                    query_parts.append(kw)
+            keywords = search_params["job_keywords"]
+
+            # 最も重要なキーワードを3〜4つに絞り込む
+            # 'Python'はlanguage指定子で使うため、キーワードリストからは一旦除外
+            core_keywords = [kw for kw in keywords if kw.lower() != 'python'][:4]
+
+            # 言語(language)と、厳選したキーワードで検索クエリを作成
+            query_str = f"language:python {' '.join(core_keywords)} location:japan"
             
-            # 日本在住のユーザーに絞る例
-            query_str = ' '.join(query_parts) + " location:japan"
             github_data = self.search_github_profiles(query_str, max_results=5) # 検索結果を5件に制限
             all_candidates.extend(github_data)
         
