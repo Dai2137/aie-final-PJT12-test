@@ -124,14 +124,21 @@ class DataCollector:
         
         # クエリに基づく簡易フィルタリング
         filtered_profiles = []
-        query_lower = query.lower()
-        
+        # 検索クエリを個別のキーワードリストに変換
+        keywords = query.lower().split()
+
         for profile in mock_profiles:
-            if (query_lower in profile['title'].lower() or 
-                query_lower in ' '.join(profile['skills']).lower() or
-                query_lower in profile['summary'].lower()):
+            # プロフィールのテキスト情報を全て結合して検索対象にする
+            profile_text = (
+                profile['title'].lower() + ' ' +
+                ' '.join(profile['skills']).lower() + ' ' +
+                profile['summary'].lower()
+            )
+
+            # キーワードのいずれか一つでもプロフィールテキストに含まれていれば追加
+            if any(keyword in profile_text for keyword in keywords):
                 filtered_profiles.append(profile)
-        
+
         result = filtered_profiles[:max_results]
         logger.info(f"LinkedIn風検索完了: {len(result)}件")
         return result

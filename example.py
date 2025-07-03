@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
 """
 有望人材レコメンドシステム実行例
-
-使用前に .env ファイルを作成し、GEMINI_API_KEY を設定してください。
 """
 
 import sys
@@ -80,13 +78,13 @@ def main():
         print(f"処理時間: 検索完了")
         print(f"候補者総数: {len(results)}名")
         print(f"使用データソース: ResearchMap風データ, LinkedIn風データ")
-        print(f"AI分析: Google Gemini Pro")
+        # print(f"AI分析: Google Gemini Pro")
         
     except Exception as e:
         logger.error(f"実行エラー: {e}")
         print(f"❌ エラーが発生しました: {e}")
         print("\n対処方法:")
-        print("1. .env ファイルに GEMINI_API_KEY が正しく設定されているか確認")
+        # print("1. .env ファイルに GEMINI_API_KEY が正しく設定されているか確認")
         print("2. 仮想環境がアクティベートされているか確認")
         print("3. 必要なライブラリがインストールされているか確認")
 
