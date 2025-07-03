@@ -59,7 +59,40 @@ class DataCollector:
                 "citations": 450,
                 "profile_url": "https://researchmap.jp/example3",
                 "description": "大規模データ解析の専門家。産業界との連携も多く、実用的なAIシステム開発に貢献。"
-            }
+            },
+            
+            # ----- 段階的に候補者を追加 -----
+
+            # 【レベル1：ほぼ完璧にマッチ】
+            {
+                "name": "研究者D (LLM専門)",
+                "affiliation": "情報科学研究所",
+                "research_areas": ["大規模言語モデル", "分散学習", "Megatron-LM", "DeepSpeed", "自立型エージェント"],
+                "publications": 40,
+                "citations": 850,
+                "profile_url": "https://researchmap.jp/example_llm_specialist",
+                "description": "LLMのアーキテクチャ設計と、マルチノード・マルチGPU環境での分散学習が専門。特にMegatron-LMやDeep Speedを用いた学習効率化に関する研究で国際学会での発表経験も多数。オープンソースで開発した言語モデルも公開している。"
+            },
+            # 【レベル2：主要スキルがマッチ】
+            {
+                "name": "研究者E (言語モデル応用)",
+                "affiliation": "国立情報学研究所",
+                "research_areas": ["自然言語処理", "言語モデル", "意味理解", "対話システム"],
+                "publications": 25,
+                "citations": 400,
+                "profile_url": "https://researchmap.jp/example_nlp_applied",
+                "description": "応用言語学の観点から、生成AIの評価手法やハルシネーションの抑制に関する研究に従事。データセットの構築と、既存モデルの評価サイクルを回した経験が豊富。"
+            },
+            # 【レベル3：ポテンシャル候補】
+            {
+                "name": "研究者F (HPC・計算科学)",
+                "affiliation": "理化学研究所 計算科学研究センター",
+                "research_areas": ["高性能計算(HPC)", "大規模シミュレーション", "並列処理", "計算物理学"],
+                "publications": 50,
+                "citations": 1200,
+                "profile_url": "https://researchmap.jp/example_hpc_researcher",
+                "description": "スーパーコンピュータ「富岳」を用いた大規模シミュレーションが専門。直接のAI経験はないが、大規模データの並列処理や計算の高速化に関する深い知見と実装経験を持つ。"
+            },
         ]
         
         # キーワードに基づくフィルタリング（簡易実装）
@@ -119,6 +152,46 @@ class DataCollector:
                 "education": "早稲田大学 理工学部 修士",
                 "profile_url": "https://linkedin.com/in/example3",
                 "summary": "大規模機械学習システムの設計・構築。MLOpsの導入により開発効率化を実現。"
+            },
+            
+            
+            # ----- 段階的に候補者を追加 -----
+
+            # 【レベル1：ほぼ完璧にマッチ】
+            {
+                "name": "エンジニアD (LLMスペシャリスト)",
+                "title": "シニアAIエンジニア",
+                "company": "NextGen AI Lab",
+                "location": "東京",
+                "experience_years": 6,
+                "skills": ["Python", "PyTorch", "LLM", "分散学習", "DeepSpeed", "Megatron-LM", "MLOps"],
+                "education": "マサチューセッツ工科大学 コンピュータサイエンス 修士",
+                "profile_url": "https://linkedin.com/in/example_llm_engineer",
+                "summary": "6年間のAI開発経験。直近3年間は100Bパラメータを超える大規模言語モデルの継続学習と、国際学会で発表される技術の再現実装をリード。開発した言語モデルを公開し、コミュニティから高い評価を得ている。"
+            },
+            # 【レベル2：主要スキルがマッチ】
+            {
+                "name": "エンジニアE (NLPエンジニア)",
+                "title": "機械学習エンジニア",
+                "company": "株式会社言語知能",
+                "location": "京都",
+                "experience_years": 4,
+                "skills": ["Python", "TensorFlow", "自然言語処理", "LLM", "モデル評価"],
+                "education": "京都大学大学院 情報学研究科 修士",
+                "profile_url": "https://linkedin.com/in/example_nlp_engineer",
+                "summary": "自然言語処理を専門とする機械学習エンジニア。生成系言語モデルのファインチューニングや評価サイクルの経験を有する。特に、対話システムの開発プロジェクトに従事。"
+            },
+            # 【レベル3：ポテンシャル候補】
+            {
+                "name": "エンジニアF (深層学習リサーチャー)",
+                "title": "AIリサーチャー",
+                "company": "大手電機メーカー研究所",
+                "location": "神奈川",
+                "experience_years": 5,
+                "skills": ["Python", "PyTorch", "深層学習", "コンピュータビジョン", "論文実装"],
+                "education": "東京工業大学 情報理工学院 修士",
+                "profile_url": "https://linkedin.com/in/example_dl_researcher",
+                "summary": "深層学習を用いた画像認識技術の研究開発に5年間従事。国際学会での発表経験あり。言語モデルの直接的な経験はないが、PyTorchと大規模データセットの取り扱いには習熟している。"
             }
         ]
         
