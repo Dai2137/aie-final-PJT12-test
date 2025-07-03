@@ -8,15 +8,14 @@ load_dotenv()
 
 import sys
 import os
-
-# srcディレクトリをパスに追加
-sys.path.append(os.path.join(os.path.dirname(__file__), 'src'))
-
-from talent_recommender import TalentRecommender
-from requirements_fetcher import fetch_job_requirements  # ⇦ 追加
 from loguru import logger
 import requests
 from bs4 import BeautifulSoup
+
+# srcディレクトリをパスに追加
+from talent_recommender import TalentRecommender
+sys.path.append(os.path.join(os.path.dirname(__file__), 'src'))
+from requirements_fetcher import fetch_job_requirements  # ⇦ 追加
 
 
 # Webページからテキストを取得するためのヘルパー関数
