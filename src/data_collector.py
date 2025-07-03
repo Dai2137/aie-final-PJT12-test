@@ -101,7 +101,7 @@ class DataCollector:
             github_candidates_dict = {}
 
             # 主要なキーワードそれぞれで検索を実行
-            for keyword in core_documents:
+            for keyword in core_keywords:
                 query_str = f"language:python {keyword} location:japan"
                 # 1回の検索あたりの取得数を減らし、幅広く探す
                 results = self.search_github_profiles(query_str, max_results=3) 
