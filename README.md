@@ -26,7 +26,7 @@
 - **言語**: Python
 - **仮想環境**: uv venv
 - **パッケージ管理**: uv pip
-- **AI/LLM**: Google Gemini API
+- **AI/LLM**: Amazon Nova Lite
 - **データソース**: SNS、ResearchMap等の公開情報
 
 ## セットアップ
@@ -47,7 +47,7 @@ uv pip install -r requirements.txt
 ### 3. 環境変数の設定
 ```bash
 # .env ファイルを作成し、以下を設定
-GEMINI_API_KEY=your_gemini_api_key
+# GEMINI_API_KEY=your_gemini_api_key
 ```
 
 ## 使用方法
@@ -105,7 +105,7 @@ talent_recommender/
 ### Phase 1: 基本機能
 - [ ] プロジェクト構造の設計
 - [ ] 人材要件入力システム
-- [ ] Gemini API連携
+- [ ] Nova Lite連携
 - [ ] 基本的なマッチング機能
 
 ### Phase 2: 高度な分析
@@ -121,8 +121,8 @@ talent_recommender/
 ## 参考リンク
 
 - [募集要項例](https://herp.careers/v1/weblab/r-pnKT2vTAb7)
-- Google Gemini API ドキュメント
-- ResearchMap API (利用可能な場合)
+- [Nova Lite API ドキュメント](https://docs.aws.amazon.com/bedrock/latest/userguide/nova-lite-api.html)
+- [ResearchMap API (利用可能な場合)](https://researchmap.jp/api/docs)
 
 ## 実行方法
 
@@ -170,7 +170,7 @@ for result in results:
 ## システム特徴
 
 ### 🎯 高精度マッチング
-- Google Gemini AIによる詳細なプロフィール分析
+- Amazon Nova Lite AIによる詳細なプロフィール分析
 - 複数指標による総合評価（マッチ度・有望度）
 - 候補者の強みと懸念点の明確化
 
@@ -195,7 +195,7 @@ for result in results:
 ## 注意事項
 
 - 現在はモックデータを使用（実際のAPI接続時は利用規約を確認）
-- Google Gemini APIキーの設定が必要
+<!-- - Amazon Nova Lite APIキーの設定が必要 -->
 - プライバシー保護に配慮した設計
 
 ## ライセンス
