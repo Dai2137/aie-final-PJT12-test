@@ -27,7 +27,7 @@
 - **仮想環境**: uv venv
 - **パッケージ管理**: uv pip
 - **AI/LLM**: Amazon Nova Lite
-- **データソース**: SNS、ResearchMap等の公開情報
+- **データソース**: GitHubの公開情報（プロフィール）
 
 ## セットアップ
 
@@ -54,31 +54,48 @@ uv pip install -r requirements.txt
 
 ### 基本的な使用例
 ```python
-from talent_recommender import TalentRecommender
+# 1. 人材要件をWebページから取得
+print("人材要件をWebから取得中...")
+requirement_url = "https://herp.careers/v1/weblab/r-pnKT2vTAb7"
+raw_text = fetch_text_from_url(requirement_url)
+if not raw_text:
+    print("❌ 人材要件の取得に失敗しました。")
+    return
 
-# システムの初期化
-recommender = TalentRecommender()
+# 2. 取得したテキストを分析し、キーワードを抽出
+requirements = recommender.analyze_requirements_from_text(raw_text)
+if not requirements:
+    print("❌ 人材要件の分析に失敗しました。")
+    return
 
-# 人材要件の設定
-requirements = {
-    "skills": ["機械学習", "Python", "データ分析"],
-    "experience": "3年以上",
-    "education": "修士以上",
-    "research_area": ["深層学習", "自然言語処理"]
-}
+print("▼ 抽出された検索キーワード")
+print(requirements["skills"])
+print()
 
-# 人材レコメンドの実行
-candidates = recommender.find_candidates(requirements)
+# 3. 抽出されたキーワードで候補者を検索
+print("候補者を検索中...")
+results = recommender.find_candidates(requirements) 
 
-# 結果の表示
-for candidate in candidates:
-    print(f"名前: {candidate.name}")
-    print(f"マッチ度: {candidate.match_score}")
-    print(f"有望度: {candidate.potential_score}")
-    print(f"プロフィール: {candidate.profile_summary}")
-    print(f"参照URL: {candidate.reference_links}")
-    print("---")
-```
+        
+if not results:
+    print("❌ 条件に合致する候補者が見つかりませんでした。")
+    return
+
+print(f"✓ {len(results)}名の候補者を発見しました\n")
+
+# 結果表示
+print("=== 検索結果 ===")
+for i, result in enumerate(results, 1):
+    print(f"\n【候補者 {i}】")
+    print(f"名前: {result.candidate_name}")
+    print(f"マッチ度: {result.match_score}点")
+    print(f"有望度: {result.potential_score}点")
+    print(f"総合スコア: {result.match_score * 0.7 + result.potential_score * 0.3:.1f}点")
+    print(f"要約: {result.summary}")
+    print(f"強み: {', '.join(result.strengths) if result.strengths else '評価中'}")
+    print(f"懸念点: {', '.join(result.concerns) if result.concerns else 'なし'}")
+    print(f"情報源: {result.source}")
+    print(f"参照URL: {', '.join(result.reference_links) if result.reference_links else 'なし'}")```
 
 ## プロジェクト構造
 
@@ -88,13 +105,9 @@ talent_recommender/
 │   ├── __init__.py
 │   ├── talent_recommender.py    # メインシステム
 │   ├── data_collector.py        # データ収集モジュール
-│   ├── profile_analyzer.py      # プロフィール分析
 │   ├── matching_engine.py       # マッチングエンジン
-│   └── gemini_client.py         # Gemini API クライアント
-├── data/
-│   └── sample_data/             # サンプルデータ
-├── tests/
-│   └── test_*.py               # テストファイル
+│   ├── requirements_fetcher.py  # 人材要件取得
+│   └── bedrock_client.py         # bedrock クライアント
 ├── requirements.txt            # 依存関係
 ├── .env.example               # 環境変数テンプレート
 └── README.md                  # このファイル
@@ -122,7 +135,6 @@ talent_recommender/
 
 - [募集要項例](https://herp.careers/v1/weblab/r-pnKT2vTAb7)
 - [Nova Lite API ドキュメント](https://docs.aws.amazon.com/bedrock/latest/userguide/nova-lite-api.html)
-- [ResearchMap API (利用可能な場合)](https://researchmap.jp/api/docs)
 
 ## 実行方法
 
@@ -142,30 +154,6 @@ cp .env.example .env
 python example.py
 ```
 
-### 3. カスタム実行
-```python
-from src.talent_recommender import TalentRecommender
-
-# システム初期化
-recommender = TalentRecommender()
-
-# 検索要件設定
-requirements = {
-    "skills": ["機械学習", "Python", "データ分析"],
-    "experience": "3年以上",
-    "education": "修士以上",
-    "research_area": ["深層学習", "自然言語処理"]
-}
-
-# 候補者検索
-results = recommender.find_candidates(requirements)
-
-# 結果表示
-for result in results:
-    print(f"名前: {result.candidate_name}")
-    print(f"マッチ度: {result.match_score}点")
-    print(f"有望度: {result.potential_score}点")
-```
 
 ## システム特徴
 
@@ -175,8 +163,6 @@ for result in results:
 - 候補者の強みと懸念点の明確化
 
 ### 📊 多様なデータソース
-- ResearchMap風データ（研究者情報）
-- LinkedIn風データ（職歴・スキル情報）
 - GitHub API連携（開発者実績）
 
 ### 🚀 効率的な運用
@@ -194,8 +180,8 @@ for result in results:
 
 ## 注意事項
 
-- 現在はモックデータを使用（実際のAPI接続時は利用規約を確認）
-<!-- - Amazon Nova Lite APIキーの設定が必要 -->
+<!-- - 現在はモックデータを使用（実際のAPI接続時は利用規約を確認） -->
+- Amazon Nova Lite APIキーの設定が必要
 - プライバシー保護に配慮した設計
 
 ## ライセンス
