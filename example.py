@@ -13,8 +13,8 @@ import requests
 from bs4 import BeautifulSoup
 
 # srcディレクトリをパスに追加
-from talent_recommender import TalentRecommender
 sys.path.append(os.path.join(os.path.dirname(__file__), 'src'))
+from talent_recommender import TalentRecommender
 from requirements_fetcher import fetch_job_requirements  # ⇦ 追加
 
 
