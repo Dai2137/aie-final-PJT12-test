@@ -3,6 +3,9 @@
 有望人材レコメンドシステム実行例
 """
 
+from dotenv import load_dotenv
+load_dotenv()
+
 import sys
 import os
 
@@ -19,15 +22,22 @@ from bs4 import BeautifulSoup
 # Webページからテキストを取得するためのヘルパー関数
 def fetch_text_from_url(url: str) -> str:
     try:
-        response = requests.get(url)
+        # 一般的なブラウザからのアクセスを装うためのヘッダー
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+        }
+        response = requests.get(url, headers=headers)
         response.raise_for_status()
         soup = BeautifulSoup(response.text, 'html.parser')
-        # HERPの求人ページに合わせて主要なテキストが含まれる部分を選択
-        # このセレクタは実際のページ構造に合わせて調整が必要
-        body = soup.find('div', class_='body___ECELF')
-        if body:
-            return body.get_text(separator=' ', strip=True)
-        return ""
+        
+        # 正しいクラス名で全ての関連セクションを取得
+        content_divs = soup.find_all('div', class_='multiline-text')
+        
+        # 全てのセクションのテキストを結合
+        full_text = ' '.join(div.get_text(separator=' ', strip=True) for div in content_divs)
+        
+        return full_text
+        
     except Exception as e:
         logger.error(f"URLからのテキスト取得エラー: {e}")
         return ""
