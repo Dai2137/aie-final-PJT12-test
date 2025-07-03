@@ -4,6 +4,7 @@ import os
 from typing import Dict, List, Optional
 from loguru import logger
 from dotenv import load_dotenv
+load_dotenv()
 
 from bedrock_client import BedrockClient  # <- 新しく追加
 
@@ -12,24 +13,18 @@ from bedrock_client import BedrockClient  # <- 新しく追加
 from data_collector import DataCollector
 from matching_engine import MatchingEngine, MatchResult
 
-load_dotenv()
+
 
 
 class TalentRecommender:
     """有望人材レコメンドシステム"""
     
-    def __init__(self, gemini_api_key: Optional[str] = None):
-        """
-        初期化
-        
-        Args:
-            gemini_api_key: Gemini API キー（環境変数から取得される場合はNone）
-        """
+    # __init__がgithub_patを引数で受け取るように変更
+    def __init__(self, github_pat: str):
         logger.info("TalentRecommenderシステムを初期化中...")
-        
-        # self.gemini_client = GeminiClient(gemini_api_key)
         self.gemini_client = BedrockClient()
-        self.data_collector = DataCollector()
+        # DataCollectorにPATを渡して初期化
+        self.data_collector = DataCollector(github_pat=github_pat)
         self.matching_engine = MatchingEngine()
         
         # 設定値

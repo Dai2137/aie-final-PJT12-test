@@ -4,51 +4,36 @@
 """
 
 from dotenv import load_dotenv
+import os
+import sys
+from loguru import logger
+
+# 1. 最初に環境変数を読み込む
 load_dotenv()
 
-import sys
-import os
-from loguru import logger
-import requests
-from bs4 import BeautifulSoup
-
-# srcディレクトリをパスに追加
+# 2. srcディレクトリをパスに追加
 sys.path.append(os.path.join(os.path.dirname(__file__), 'src'))
+
+# 3. 自作モジュールをインポート
 from talent_recommender import TalentRecommender
-from requirements_fetcher import fetch_job_requirements  # ⇦ 追加
+from requirements_fetcher import fetch_text_from_url
 
-
-# Webページからテキストを取得するためのヘルパー関数
-def fetch_text_from_url(url: str) -> str:
-    try:
-        # 一般的なブラウザからのアクセスを装うためのヘッダー
-        headers = {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
-        }
-        response = requests.get(url, headers=headers)
-        response.raise_for_status()
-        soup = BeautifulSoup(response.text, 'html.parser')
-        
-        # 正しいクラス名で全ての関連セクションを取得
-        content_divs = soup.find_all('div', class_='multiline-text')
-        
-        # 全てのセクションのテキストを結合
-        full_text = ' '.join(div.get_text(separator=' ', strip=True) for div in content_divs)
-        
-        return full_text
-        
-    except Exception as e:
-        logger.error(f"URLからのテキスト取得エラー: {e}")
-        return ""
 
 def main():
     """メイン実行関数"""
     print("=== 有望人材レコメンドシステム ===\n")
     
     try:
-        # システム初期化
+        # 4. .envからPATを読み込み、存在を確認
+        github_pat = os.getenv("GITHUB_PAT")
+        if not github_pat:
+            logger.error("GITHUB_PATが.envファイルに設定されていません。")
+            print("❌ エラー: .envファイルにGITHUB_PATを設定してください。")
+            return
+
         print("システムを初期化中...")
-        recommender = TalentRecommender()
+        # 5. PATを引数として渡す
+        recommender = TalentRecommender(github_pat=github_pat)
         print("✓ システム初期化完了\n")
         
         

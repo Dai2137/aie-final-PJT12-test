@@ -8,25 +8,20 @@ import random
 class DataCollector:
     """人材データ収集クラス (GitHub API対応版)"""
 
-    def __init__(self):
-        """初期化"""
+    # __init__がgithub_patを引数で受け取るように変更
+    def __init__(self, github_pat: str):
         self.session = requests.Session()
-        github_pat = os.getenv("GITHUB_PAT")
-
+        # 引数で受け取ったキーを直接使う
         if not github_pat:
-            logger.warning("GITHUB_PATが設定されていません。GitHub APIは認証なしで実行され、厳しいレート制限を受けます。")
-            self.session.headers.update({
-                'User-Agent': 'TalentRecommender-Project'
-            })
+            logger.warning("GITHUB_PATが設定されていません。...")
         else:
-            logger.info("GITHUB_PATを読み込みました。認証済みでGitHub APIにアクセスします。")
+            logger.info("GITHUB_PATを読み込みました。...")
             self.session.headers.update({
                 'Authorization': f'token {github_pat}',
                 'Accept': 'application/vnd.github.v3+json',
                 'User-Agent': 'TalentRecommender-Project'
             })
         logger.info("データ収集モジュールを初期化しました")
-
     def search_github_profiles(self, query: str, max_results: int = 10) -> List[Dict]:
         """GitHub APIを使ってユーザーを検索し、詳細プロフィールを取得する"""
         logger.info(f"GitHubユーザー検索開始: {query}")
