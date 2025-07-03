@@ -226,6 +226,31 @@ class TalentRecommender:
             exported_results.append(exported_result)
         
         return exported_results
+    
+
+    def analyze_requirements_from_text(self, requirement_text: str) -> Dict:
+        """
+        LLMを使って自由テキストの要件から検索用キーワードを抽出し、
+        構造化された要件辞書を生成する。
+        """
+        logger.info("LLMによる人材要件の分析開始...")
+        # bedrock_clientにキーワード抽出を依頼
+        keywords_str = self.gemini_client.extract_keywords_from_text(requirement_text)
+
+        if not keywords_str:
+            logger.error("キーワードの抽出に失敗しました。")
+            return {}
+
+        # 抽出したキーワードをリストに変換し、skillsキーに割り当てる
+        # これでシステム内の他の部分が期待する形式になる
+        structured_requirements = {
+            "skills": keywords_str.split(),
+            "research_area": [], # これもLLMに抽出させるとより高機能に
+            "experience": "3年以上", # 固定値か、あるいはLLMに抽出させる
+            "education": "修士以上"  # 固定値か、あるいはLLMに抽出させる
+        }
+        logger.success(f"キーワード抽出完了: {keywords_str}")
+        return structured_requirements
 
 
 def main():

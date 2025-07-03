@@ -12,7 +12,25 @@ sys.path.append(os.path.join(os.path.dirname(__file__), 'src'))
 from talent_recommender import TalentRecommender
 from requirements_fetcher import fetch_job_requirements  # ⇦ 追加
 from loguru import logger
+import requests
+from bs4 import BeautifulSoup
 
+
+# Webページからテキストを取得するためのヘルパー関数
+def fetch_text_from_url(url: str) -> str:
+    try:
+        response = requests.get(url)
+        response.raise_for_status()
+        soup = BeautifulSoup(response.text, 'html.parser')
+        # HERPの求人ページに合わせて主要なテキストが含まれる部分を選択
+        # このセレクタは実際のページ構造に合わせて調整が必要
+        body = soup.find('div', class_='body___ECELF')
+        if body:
+            return body.get_text(separator=' ', strip=True)
+        return ""
+    except Exception as e:
+        logger.error(f"URLからのテキスト取得エラー: {e}")
+        return ""
 
 def main():
     """メイン実行関数"""
@@ -24,29 +42,30 @@ def main():
         recommender = TalentRecommender()
         print("✓ システム初期化完了\n")
         
-        # --- 人材要件の取得 ---
-        # 決め打ちの要件を削除し、URLから動的に取得する
-        requirements_url = "https://herp.careers/v1/weblab/r-pnKT2vTAb7"
-        print(f"人材要件を以下のURLから取得中...\n{requirements_url}")
-        requirements = fetch_job_requirements(requirements_url) # ⇦ 変更
-        print("✓ 人材要件の取得完了\n")
         
+        # 1. 人材要件をWebページから取得
+        print("人材要件をWebから取得中...")
+        requirement_url = "https://herp.careers/v1/weblab/r-pnKT2vTAb7"
+        raw_text = fetch_text_from_url(requirement_url)
+        if not raw_text:
+            print("❌ 人材要件の取得に失敗しました。")
+            return
         
-        
-        
-        print("検索要件:")
-        for key, value in requirements.items():
-            # 値がリストの場合はカンマ区切りで表示
-            if isinstance(value, list):
-                print(f"  {key}: {', '.join(value)}")
-            else:
-                print(f"  {key}: {value}")
+        # 2. 取得したテキストを分析し、キーワードを抽出
+        requirements = recommender.analyze_requirements_from_text(raw_text)
+        if not requirements:
+            print("❌ 人材要件の分析に失敗しました。")
+            return
+
+        print("▼ 抽出された検索キーワード")
+        print(requirements["skills"])
         print()
-        
-        # 候補者検索実行
+
+        # 3. 抽出されたキーワードで候補者を検索
         print("候補者を検索中...")
-        results = recommender.find_candidates(requirements)
+        results = recommender.find_candidates(requirements) 
         
+               
         if not results:
             print("❌ 条件に合致する候補者が見つかりませんでした。")
             return

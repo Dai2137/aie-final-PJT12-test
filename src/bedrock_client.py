@@ -179,3 +179,41 @@ class BedrockClient:
         except Exception as e:
             logger.error(f"アプローチ戦略生成エラー: {e}")
             return "個別相談により最適なアプローチ方法を検討することをお勧めします。"
+        
+
+
+
+    def extract_keywords_from_text(self, requirement_text: str) -> str:
+        """
+        長い職務内容のテキストから、検索用の技術キーワードを抽出する
+        """
+        prompt = f"""
+    以下の職務内容のテキストから、GitHubのユーザー検索に有効な技術キーワードを10個以内で抽出してください。
+    プログラミング言語、ライブラリ名、技術分野などを優先し、スペース区切りの1行の文字列で出力してください。
+
+    【職務内容】
+    {requirement_text}
+
+    【キーワード出力例】
+    Python PyTorch LLM Transformer データ分析 自然言語処理
+    """
+        try:
+            # Bedrock APIを呼び出す処理 (analyze_profileと同様)
+            body = json.dumps({
+                "messages": [{"role": "user", "content": [{"text": prompt}]}]
+            })
+            response = self.client.invoke_model(body=body, modelId=self.model_id)
+            response_body = json.loads(response.get("body").read())
+            
+            output = response_body.get("output", {}).get("message", {})
+            content_list = output.get("content")
+
+            if content_list and isinstance(content_list, list) and len(content_list) > 0:
+                # LLMが生成したキーワード文字列を返す
+                return content_list[0].get("text", "").strip()
+            
+            return "" # 抽出失敗時は空文字を返す
+
+        except Exception as e:
+            logger.error(f"キーワード抽出エラー: {e}")
+            return ""
