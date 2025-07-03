@@ -16,12 +16,12 @@ def fetch_job_requirements(url: str) -> dict:
     logger.info(f"人材要件の取得を開始: {url}")
     try:
         # Webページから直接取得を試みる (本番実装)
-        # response = requests.get(url, timeout=10)
-        # response.raise_for_status()
-        # soup = BeautifulSoup(response.text, 'html.parser')
-        # requirements = parse_requirements(soup)
-        # logger.success("Webページから人材要件を取得しました")
-        # return requirements
+        response = requests.get(url, timeout=10)
+        response.raise_for_status()
+        soup = BeautifulSoup(response.text, 'html.parser')
+        requirements = parse_requirements(soup)
+        logger.success("Webページから人材要件を取得しました")
+        return requirements
         
         # ----- サンプルとしてのフォールバック実装 -----
         # 上記のWebスクレイピングが失敗した場合の代替処理
